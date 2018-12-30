@@ -27,7 +27,7 @@ function index()
 		
 	entry({"admin", "services", "V2rayVPN", "ip"},
 		cbi("V2rayVPN/V2rayVPN-ip"),
-		_("IP直通"), 60).leaf = true			
+		_("IP直通"), 50).leaf = true			
 
 	entry({"admin", "services", "V2rayVPN", "watchdog"},
 		call("action_watchdog"),
@@ -36,7 +36,7 @@ end
 
 function action_watchdog()
 	local fs = require "nixio.fs"
-	local conffile = "/var/log/V2rayVPN_watchdog.log" 
+	local conffile = "/var/log/V2rayVPN-watchdog.log" 
 	local watchdog = fs.readfile(conffile) or ""
 	luci.template.render("V2rayVPN/watchdog", {watchdog=watchdog})
 end

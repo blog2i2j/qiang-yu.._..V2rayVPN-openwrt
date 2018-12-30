@@ -6,13 +6,16 @@ SERVICE_USE_PID=1
 SERVICE_WRITE_PID=1
 SERVICE_DAEMONIZE=1
 
-CONFIG_DIR=/etc/ssvpn
-CONFIG_V2RAY=$CONFIG_DIR/v2ray.json
-CONFIG_DNS=$CONFIG_DIR/pdnsd.conf
+CONFIG_DIR=/etc/V2rayVPN
+CONFIG_V2RAY_TEMPLATE=$CONFIG_DIR/config.json
+CONFIG_V2RAY_CFGFILE=/tmp/V2rayVPN-config.json
+CONFIG_V2RAY_BIN=$CONFIG_DIR/v2ray
 CONFIG_IPFILE=$CONFIG_DIR/ip.txt
-CONFIG_GFWLIST=$CONFIG_DIR/shadowsocks_gfwlist.conf
-CONFIG_CUSLIST=$CONFIG_DIR/shadowsocks_custom.conf
-LOCK_FILE=/var/run/ssvpn.lock
+CONFIG_GFWLIST=$CONFIG_DIR/V2rayVPN-gfwlist.conf
+CONFIG_CUSLIST=$CONFIG_DIR/V2rayVPN-custom.conf
+LOCK_FILE=/var/run/V2rayVPN.lock
+
+CONFIG_DNS=$CONFIG_DIR/pdnsd.conf
 
 start() {
 
@@ -22,8 +25,40 @@ start() {
 		exit 0
 	fi
 
+	## read config file
+	config_load V2rayVPN
+	config_foreach runV2ray V2rayVPN
+}
+
+runV2ray(){	
+	
+	local enable
+	config_get_bool enable $1 enable
+	
+	if [ ! $enable ];then
+		echo "V2rayVPN is not enable"
+		exit 0 
+	fi
+	
+	local server
+	local port
+	local id
+	local protocol
+	local socksProxy
+	local httpProxy
+	
+	config_get server $1 server
+	config_get port $1 port
+	config_get id $1 id
+	config_get protocol $1 protocol
+	config_get socksProxy $1 socksProxy
+	config_get httpProxy $1 httpProxy
+	
+	cat $CONFIG_V2RAY_TEMPLATE | sed "s/#server#/${server}/g" | sed "s/#port#/${port}/g" |  sed "s/#id#/${id}/g" \
+	| sed "s/#protocol#/${protocol}/g" |  sed "s/#socksProxy#/${socksProxy}/g" | sed "s/#httpProxy#/${httpProxy}/g" > $CONFIG_V2RAY_CFGFILE 
+	
 	## start transparent redirect
-	service_start /usr/bin/v2ray -config $CONFIG_V2RAY 
+	service_start $CONFIG_V2RAY_BIN -config $CONFIG_V2RAY_CFGFILE 
 		
 	sleep 1
 	
@@ -36,7 +71,7 @@ start() {
 	## for udp redir
 	/usr/sbin/ip route add local default dev lo table 100
 	/usr/sbin/ip rule add fwmark 1 lookup 100
-	/usr/sbin/iptables -t mangle -A PREROUTING  -p udp -m set --match-set gfwlist dst -j TPROXY --on-port 1082 --tproxy-mark 0x01/0x01
+	/usr/sbin/iptables -t mangle -A PREROUTING  -p udp -m set --match-set gfwlist dst -j TPROXY --on-port 1081 --tproxy-mark 0x01/0x01
 
 	## add all ip.txt to ipset 
 	while read -r line 
@@ -44,16 +79,12 @@ start() {
 		/usr/sbin/ipset -A gfwlist $line
 	done < $CONFIG_IPFILE
 	
-        ## for dns lookup, pdnsd do tcp query, we need to query proxy through shadowsocks
-        /usr/sbin/ipset -A gfwlist 8.8.8.8                                      
-        /usr/sbin/ipset -A gfwlist 8.8.4.4 
-
-	## split to random port 
-	## /usr/sbin/iptables -t nat -A OUTPUT -d 154.96.172.127 -p tcp --dport 443 -j DNAT --to-destination 154.96.172.127:10000-20000 --random
-	## /usr/sbin/iptables -t nat -A OUTPUT -d 154.96.172.127 -p udp --dport 443 -j DNAT --to-destination 154.96.172.127:10000-20000 --random
+	## for dns lookup, pdnsd do tcp query, we need to query proxy through v2ray
+	/usr/sbin/ipset -A gfwlist 8.8.8.8                                      
+	/usr/sbin/ipset -A gfwlist 8.8.4.4 
 
 	## start pdnsd for dns query
-	service_start /usr/bin/ss-pdnsd -c $CONFIG_DNS
+	## service_start /usr/bin/ss-pdnsd -c $CONFIG_DNS
 	sleep 3
 
 	if [ ! -d /tmp/dnsmasq.d ]
@@ -71,40 +102,36 @@ start() {
 
 	## add watch dog job
 	LOGTIME=$(date "+%Y-%m-%d %H:%M:%S")
-	echo '['$LOGTIME'] Start Watchdog ' >> /var/log/ssvpn_watchdog.log
+	echo '['$LOGTIME'] Start Watchdog ' >> /var/log/V2rayVPN-watchdog.log
 
 	## remove old watch dog job                                                                                                                                                              
-        /usr/bin/crontab -l | { /bin/sed '/ssvpn_watchdog.log/d'; } | /usr/bin/crontab - 
+    /usr/bin/crontab -l | { /bin/sed '/V2rayVPN-watchdog.log/d'; } | /usr/bin/crontab - 
 
 	## start watchdog
-	/usr/bin/crontab -l | { cat; echo "*/10 * * * * /etc/ssvpn/ss-watchdog >> /var/log/ssvpn_watchdog.log 2>&1"; echo "0 1 * * 0 echo \"\" > /var/log/ssvpn_watchdog.log"; } | /usr/bin/crontab -
+	/usr/bin/crontab -l | { cat; echo "*/10 * * * * /etc/V2rayVPN/watchdog >> /var/log/V2rayVPN-watchdog.log 2>&1"; echo "0 1 * * 0 echo \"\" > /var/log/V2rayVPN-watchdog.log"; } | /usr/bin/crontab -
 }
 
 stop() {
 
 	## remove watch dog job
-	/usr/bin/crontab -l | { /bin/sed '/ssvpn_watchdog.log/d'; } | /usr/bin/crontab -
+	/usr/bin/crontab -l | { /bin/sed '/V2rayVPN-watchdog.log/d'; } | /usr/bin/crontab -
 
 	LOGTIME=$(date "+%Y-%m-%d %H:%M:%S")
-        echo '['$LOGTIME'] Stop Watchdog ' >> /var/log/ssvpn_watchdog.log
+        echo '['$LOGTIME'] Stop Watchdog ' >> /var/log/V2rayVPN-watchdog.log
 
 	/usr/sbin/ip route del local default dev lo table 100
 	/usr/sbin/ip rule del fwmark 1 lookup 100
-	/usr/sbin/iptables -t mangle -D PREROUTING  -p udp -m set --match-set gfwlist dst -j TPROXY --on-port 1082 --tproxy-mark 0x01/0x01	
+	/usr/sbin/iptables -t mangle -D PREROUTING  -p udp -m set --match-set gfwlist dst -j TPROXY --on-port 1081 --tproxy-mark 0x01/0x01	
 	
 	/usr/sbin/iptables -t nat -D PREROUTING -p tcp -m set --match-set gfwlist dst -j REDIRECT --to-port 1081
 	/usr/sbin/iptables -t nat -D OUTPUT -p tcp -m set --match-set gfwlist dst -j REDIRECT --to-port 1081
 	/usr/sbin/ipset -X gfwlist 
 
-	## split to random port 
-	## /usr/sbin/iptables -t nat -D OUTPUT -d 154.96.172.127 -p tcp --dport 443 -j DNAT --to-destination 154.96.172.127:10000-20000 --random
-	## /usr/sbin/iptables -t nat -D OUTPUT -d 154.96.172.127 -p udp --dport 443 -j DNAT --to-destination 154.96.172.127:10000-20000 --random	
-
-	service_stop /usr/bin/ss-pdnsd	
-	service_stop /usr/bin/v2ray	
+	##service_stop /usr/bin/ss-pdnsd	
+	service_stop $CONFIG_V2RAY_BIN 	
 	sleep 1
 	
-	rm -f /tmp/dnsmasq.d/shadow*  
+	rm -f /tmp/dnsmasq.d/V2ray*  
 	
 	/etc/init.d/dnsmasq stop
 	/etc/init.d/dnsmasq start

@@ -60,12 +60,13 @@ define Package/V2rayVPN/install
 
 	
 	$(INSTALL_DIR) $(1)/etc/init.d
-	
+	$(INSTALL_BIN) ./files/V2rayVPN $(1)/etc/init.d/V2rayVPN 
 
 	$(INSTALL_DIR) $(1)/usr/lib/lua/luci/controller
 	$(INSTALL_CONF) ./files/V2rayVPN.lua $(1)/usr/lib/lua/luci/controller/V2rayVPN.lua
 		
 	$(INSTALL_DIR) $(1)/usr/lib/lua/luci/model/cbi/V2rayVPN
+	$(INSTALL_CONF) ./files/V2rayVPN-v2ray.lua $(1)/usr/lib/lua/luci/model/cbi/V2rayVPN/V2rayVPN-v2ray.lua
 	$(INSTALL_CONF) ./files/V2rayVPN-config.lua $(1)/usr/lib/lua/luci/model/cbi/V2rayVPN/V2rayVPN-config.lua
 	$(INSTALL_CONF) ./files/V2rayVPN-ip.lua $(1)/usr/lib/lua/luci/model/cbi/V2rayVPN/V2rayVPN-ip.lua
 	$(INSTALL_CONF) ./files/V2rayVPN-custom.lua $(1)/usr/lib/lua/luci/model/cbi/V2rayVPN/V2rayVPN-custom.lua

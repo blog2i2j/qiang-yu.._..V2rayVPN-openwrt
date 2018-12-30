@@ -9,7 +9,7 @@ t.readonly = true
 t.rows = 10
 function t.cfgvalue()
 	if not nixio.fs.access(conffile) then
-        return "/etc/V2rayVPN/v2ray 文件不存在，请点击下面【提交】自动下载程序"
+        return "/etc/V2rayVPN/v2ray 文件不存在，请点击下面【提交】自动下载程序，必须有v2ray程序否则无法正常运行"
 	else
 		return "/etc/V2rayVPN/v2ray 已经存在，可以正常运行"
     end
