@@ -1,5 +1,4 @@
 config V2rayVPN
-	option enable '0'
     option server '134.25.6.78'
     option port '80'
 	option id '39a59e6a-91f0-4p57-9u43-b284ya9d5o59'
