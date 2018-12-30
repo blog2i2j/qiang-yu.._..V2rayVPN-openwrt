@@ -6,6 +6,7 @@ v2ray 的 openwrt 工程，简单、好用、够用
 - 下载 v2ray 执行程序，放到 /etc/V2rayVPN 目录下
 
    请自己去 [v2ray 工程][1] 下载适合你的路由器的程序，解压缩，把 v2ray/v2ctrl 两个文件放到 /etc/V2rayVPN 目录下，只有放到这个目录下，程序才可以使用
+   注意：需要确保 v2ray/v2ctrl 有执行权限， chmod a+x v2ray/v2ctrl 
 
 ![1](https://github.com/qiang-yu/V2rayVPN-openwrt/blob/master/misc/1.jpg)
 
