@@ -1,0 +1,16 @@
+#!/bin/sh
+
+LOGTIME=$(date "+%Y-%m-%d %H:%M:%S")
+wget -4 --spider --quiet --tries=2 --timeout=10 www.google.com
+if [ "$?" == "0" ]; then
+	echo '['$LOGTIME'] No Problem.'
+	exit 0
+else
+	wget -4 --spider --quiet --tries=2 --timeout=10 www.baidu.com
+	if [ "$?" == "0" ]; then
+		echo '['$LOGTIME'] Problem decteted, restarting V2rayVPN...'
+		/etc/init.d/V2rayVPN restart
+	else
+		echo '['$LOGTIME'] Network Problem. Do nothing.'
+	fi
+fi

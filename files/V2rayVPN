@@ -1,0 +1,119 @@
+#!/bin/sh /etc/rc.common
+
+START=95
+
+SERVICE_USE_PID=1
+SERVICE_WRITE_PID=1
+SERVICE_DAEMONIZE=1
+
+CONFIG_DIR=/etc/ssvpn
+CONFIG_V2RAY=$CONFIG_DIR/v2ray.json
+CONFIG_DNS=$CONFIG_DIR/pdnsd.conf
+CONFIG_IPFILE=$CONFIG_DIR/ip.txt
+CONFIG_GFWLIST=$CONFIG_DIR/shadowsocks_gfwlist.conf
+CONFIG_CUSLIST=$CONFIG_DIR/shadowsocks_custom.conf
+LOCK_FILE=/var/run/ssvpn.lock
+
+start() {
+
+	if ! mkdir $LOCK_FILE 
+	then
+		echo "v2ray is already running, stop it first"
+		exit 0
+	fi
+
+	## start transparent redirect
+	service_start /usr/bin/v2ray -config $CONFIG_V2RAY 
+		
+	sleep 1
+	
+	/usr/sbin/ipset -N gfwlist iphash
+	
+	## for tcp redir
+	/usr/sbin/iptables -t nat -A PREROUTING -p tcp -m set --match-set gfwlist dst -j REDIRECT --to-port 1081
+	/usr/sbin/iptables -t nat -A OUTPUT -p tcp -m set --match-set gfwlist dst -j REDIRECT --to-port 1081
+	
+	## for udp redir
+	/usr/sbin/ip route add local default dev lo table 100
+	/usr/sbin/ip rule add fwmark 1 lookup 100
+	/usr/sbin/iptables -t mangle -A PREROUTING  -p udp -m set --match-set gfwlist dst -j TPROXY --on-port 1082 --tproxy-mark 0x01/0x01
+
+	## add all ip.txt to ipset 
+	while read -r line 
+	do
+		/usr/sbin/ipset -A gfwlist $line
+	done < $CONFIG_IPFILE
+	
+        ## for dns lookup, pdnsd do tcp query, we need to query proxy through shadowsocks
+        /usr/sbin/ipset -A gfwlist 8.8.8.8                                      
+        /usr/sbin/ipset -A gfwlist 8.8.4.4 
+
+	## split to random port 
+	## /usr/sbin/iptables -t nat -A OUTPUT -d 154.96.172.127 -p tcp --dport 443 -j DNAT --to-destination 154.96.172.127:10000-20000 --random
+	## /usr/sbin/iptables -t nat -A OUTPUT -d 154.96.172.127 -p udp --dport 443 -j DNAT --to-destination 154.96.172.127:10000-20000 --random
+
+	## start pdnsd for dns query
+	service_start /usr/bin/ss-pdnsd -c $CONFIG_DNS
+	sleep 3
+
+	if [ ! -d /tmp/dnsmasq.d ]
+	then
+		mkdir -p /tmp/dnsmasq.d
+		sed -i '/conf-dir=\/tmp\/dnsmasq.d/d' /etc/dnsmasq.conf
+		echo "conf-dir=/tmp/dnsmasq.d" >> /etc/dnsmasq.conf
+	fi
+	
+	cp -f $CONFIG_GFWLIST /tmp/dnsmasq.d
+	cp -f $CONFIG_CUSLIST /tmp/dnsmasq.d
+	
+	/etc/init.d/dnsmasq stop
+	/etc/init.d/dnsmasq start
+
+	## add watch dog job
+	LOGTIME=$(date "+%Y-%m-%d %H:%M:%S")
+	echo '['$LOGTIME'] Start Watchdog ' >> /var/log/ssvpn_watchdog.log
+
+	## remove old watch dog job                                                                                                                                                              
+        /usr/bin/crontab -l | { /bin/sed '/ssvpn_watchdog.log/d'; } | /usr/bin/crontab - 
+
+	## start watchdog
+	/usr/bin/crontab -l | { cat; echo "*/10 * * * * /etc/ssvpn/ss-watchdog >> /var/log/ssvpn_watchdog.log 2>&1"; echo "0 1 * * 0 echo \"\" > /var/log/ssvpn_watchdog.log"; } | /usr/bin/crontab -
+}
+
+stop() {
+
+	## remove watch dog job
+	/usr/bin/crontab -l | { /bin/sed '/ssvpn_watchdog.log/d'; } | /usr/bin/crontab -
+
+	LOGTIME=$(date "+%Y-%m-%d %H:%M:%S")
+        echo '['$LOGTIME'] Stop Watchdog ' >> /var/log/ssvpn_watchdog.log
+
+	/usr/sbin/ip route del local default dev lo table 100
+	/usr/sbin/ip rule del fwmark 1 lookup 100
+	/usr/sbin/iptables -t mangle -D PREROUTING  -p udp -m set --match-set gfwlist dst -j TPROXY --on-port 1082 --tproxy-mark 0x01/0x01	
+	
+	/usr/sbin/iptables -t nat -D PREROUTING -p tcp -m set --match-set gfwlist dst -j REDIRECT --to-port 1081
+	/usr/sbin/iptables -t nat -D OUTPUT -p tcp -m set --match-set gfwlist dst -j REDIRECT --to-port 1081
+	/usr/sbin/ipset -X gfwlist 
+
+	## split to random port 
+	## /usr/sbin/iptables -t nat -D OUTPUT -d 154.96.172.127 -p tcp --dport 443 -j DNAT --to-destination 154.96.172.127:10000-20000 --random
+	## /usr/sbin/iptables -t nat -D OUTPUT -d 154.96.172.127 -p udp --dport 443 -j DNAT --to-destination 154.96.172.127:10000-20000 --random	
+
+	service_stop /usr/bin/ss-pdnsd	
+	service_stop /usr/bin/v2ray	
+	sleep 1
+	
+	rm -f /tmp/dnsmasq.d/shadow*  
+	
+	/etc/init.d/dnsmasq stop
+	/etc/init.d/dnsmasq start
+	
+	rm -rf $LOCK_FILE
+}
+
+restart(){
+        stop
+        start
+}
+

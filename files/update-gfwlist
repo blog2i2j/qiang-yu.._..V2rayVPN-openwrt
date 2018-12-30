@@ -1,0 +1,23 @@
+#!/bin/sh
+
+gfwUrlFile=https://github.com/qiang-yu/publish-cdn/raw/master/gfwlist/gfwlist.conf
+tmpFile=/tmp/gfwlist.conf
+targetFile=/etc/V2rayVPN/V2rayVPN-gfwlist.conf
+
+rm ${tmpFile}
+
+wget -4 --no-check-certificate -q -O ${tmpFile} ${gfwUrlFile}
+
+## wget fail
+if [ $? -ne 0 ]; then
+	echo "wget fail"
+	exit 1
+fi
+
+cp -f  ${tmpFile}  ${targetFile}
+
+rm ${tmpFile}
+
+/etc/init.d/V2rayVPN stop
+sleep 3
+/etc/init.d/V2rayVPN start
