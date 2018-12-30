@@ -1,6 +1,6 @@
 #!/bin/sh
 
-gfwUrlFile=https://github.com/qiang-yu/publish-cdn/raw/master/gfwlist/gfwlist.conf
+gfwUrlFile=https://github.com/qiang-yu/publish-cdn/raw/master/gfwlist/gfwlist_localdns.conf
 tmpFile=/tmp/gfwlist.conf
 targetFile=/etc/V2rayVPN/V2rayVPN-gfwlist.conf
 

@@ -19,12 +19,22 @@
   "inboundDetour": [
   	{
         "protocol": "dokodemo-door",
-        "port": 1081,
+        "port": 1079,
         "settings": { 
 		"network": "tcp,udp",
 		"followRedirect": true
 		}
     },
+  	{
+        "protocol": "dokodemo-door",
+        "port": 7070,
+        "settings": { 
+		"address": "8.8.8.8",
+		"port": 53,
+		"network": "tcp,udp",
+		"timeout": 0
+		}
+    },	
 	{
         "protocol": "http",
         "port": #httpProxy#,

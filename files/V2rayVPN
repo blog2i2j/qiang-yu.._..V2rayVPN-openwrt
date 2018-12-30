@@ -6,6 +6,8 @@ SERVICE_USE_PID=1
 SERVICE_WRITE_PID=1
 SERVICE_DAEMONIZE=1
 
+CONFIG_REDIRECT_PORT=1079
+
 CONFIG_DIR=/etc/V2rayVPN
 CONFIG_V2RAY_TEMPLATE=$CONFIG_DIR/config.json
 CONFIG_V2RAY_CFGFILE=/tmp/V2rayVPN-config.json
@@ -65,14 +67,14 @@ runV2ray(){
 	/usr/sbin/ipset -N gfwlist iphash
 	
 	## for tcp redir
-	/usr/sbin/iptables -t nat -A PREROUTING -p tcp -m set --match-set gfwlist dst -j REDIRECT --to-port 1081
-	/usr/sbin/iptables -t nat -A OUTPUT -p tcp -m set --match-set gfwlist dst -j REDIRECT --to-port 1081
+	/usr/sbin/iptables -t nat -A PREROUTING -p tcp -m set --match-set gfwlist dst -j REDIRECT --to-port $CONFIG_REDIRECT_PORT
+	/usr/sbin/iptables -t nat -A OUTPUT -p tcp -m set --match-set gfwlist dst -j REDIRECT --to-port $CONFIG_REDIRECT_PORT
 	
 	## for udp redir
 	/usr/sbin/ip route add local default dev lo table 100
 	/usr/sbin/ip rule add fwmark 1 lookup 100
-	/usr/sbin/iptables -t mangle -A PREROUTING  -p udp -m set --match-set gfwlist dst -j TPROXY --on-port 1081 --tproxy-mark 0x01/0x01
-
+	/usr/sbin/iptables -t mangle -A PREROUTING  -p udp -m set --match-set gfwlist dst -j TPROXY --on-port $CONFIG_REDIRECT_PORT --tproxy-mark 0x01/0x01
+	
 	## add all ip.txt to ipset 
 	while read -r line 
 	do
@@ -121,10 +123,10 @@ stop() {
 
 	/usr/sbin/ip route del local default dev lo table 100
 	/usr/sbin/ip rule del fwmark 1 lookup 100
-	/usr/sbin/iptables -t mangle -D PREROUTING  -p udp -m set --match-set gfwlist dst -j TPROXY --on-port 1081 --tproxy-mark 0x01/0x01	
-	
-	/usr/sbin/iptables -t nat -D PREROUTING -p tcp -m set --match-set gfwlist dst -j REDIRECT --to-port 1081
-	/usr/sbin/iptables -t nat -D OUTPUT -p tcp -m set --match-set gfwlist dst -j REDIRECT --to-port 1081
+	/usr/sbin/iptables -t mangle -D PREROUTING  -p udp -m set --match-set gfwlist dst -j TPROXY --on-port $CONFIG_REDIRECT_PORT --tproxy-mark 0x01/0x01	
+		
+	/usr/sbin/iptables -t nat -D PREROUTING -p tcp -m set --match-set gfwlist dst -j REDIRECT --to-port $CONFIG_REDIRECT_PORT
+	/usr/sbin/iptables -t nat -D OUTPUT -p tcp -m set --match-set gfwlist dst -j REDIRECT --to-port $CONFIG_REDIRECT_PORT
 	/usr/sbin/ipset -X gfwlist 
 
 	##service_stop /usr/bin/ss-pdnsd	
