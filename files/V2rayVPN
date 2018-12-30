@@ -109,6 +109,7 @@ runV2ray(){
 
 	## remove old watch dog job                                                                                                                                                              
     /usr/bin/crontab -l | { /bin/sed '/V2rayVPN-watchdog.log/d'; } | /usr/bin/crontab - 
+	/usr/bin/crontab -l | { /bin/sed '/gfwlist-watchdog/d'; } | /usr/bin/crontab -
 
 	## start watchdog
 	/usr/bin/crontab -l | { cat; echo "*/10 * * * * /etc/V2rayVPN/watchdog >> /var/log/V2rayVPN-watchdog.log 2>&1"; echo "0 1 * * 0 echo \"\" > /var/log/V2rayVPN-watchdog.log"; } | /usr/bin/crontab -
