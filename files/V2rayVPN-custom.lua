@@ -1,5 +1,5 @@
 local fs = require "nixio.fs"
-local conffile = "/etc/V2rayVPN/V2rayVPN_custom.conf" 
+local conffile = "/etc/V2rayVPN/V2rayVPN-custom.conf" 
 
 f = SimpleForm("自定义域名", translate("V2rayVPN - 自定义域名"), translate("在这里填写上你要翻墙的域名，按照下面格式写"))
 

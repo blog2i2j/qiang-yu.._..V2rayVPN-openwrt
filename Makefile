@@ -19,10 +19,10 @@ PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
 
 include $(INCLUDE_DIR)/package.mk
 
-define Package/V2rayVPN/Default
+define Package/V2rayVPN
 	SECTION:=luci
 	CATEGORY:=LuCI
-	TITLE:=V2ray works like VPN $(2)
+	TITLE:=V2rayVPN 
 	URL:=https://github.com/qiang-yu/V2rayVPN-openwrt
 	PKGARCH:=all
 endef
@@ -46,24 +46,24 @@ endef
 
 define Package/V2rayVPN/install
 	$(INSTALL_DIR) $(1)/etc/config
-	$(INSTALL_DIR) $(1)/etc/init.d
-	$(INSTALL_DIR) $(1)/usr/lib/lua/luci/model/cbi
-	$(INSTALL_DIR) $(1)/usr/lib/lua/luci/controller
+	$(INSTALL_CONF) ./files/V2rayVPN-config $(1)/etc/config/V2rayVPN
 
-	$(INSTALL_CONF) ./files/V2rayVPN-confign $(1)/etc/config/V2rayVPN
-	
+	$(INSTALL_DIR) $(1)/etc/V2rayVPN
 	$(INSTALL_CONF) ./files/config.json $(1)/etc/V2rayVPN/config.json
-	$(INSTALL_CONF) ./files/V2rayVPN_gfwlist.conf $(1)/etc/V2rayVPN/V2rayVPN_gfwlist.conf
+	$(INSTALL_CONF) ./files/V2rayVPN-gfwlist.conf $(1)/etc/V2rayVPN/V2rayVPN-gfwlist.conf
 	$(INSTALL_CONF) ./files/V2rayVPN-custom.conf $(1)/etc/V2rayVPN/V2rayVPN-custom.conf	
 	$(INSTALL_CONF) ./files/ip.txt $(1)/etc/V2rayVPN/ip.txt
 
 	$(INSTALL_BIN) ./files/update-gfwlist $(1)/etc/V2rayVPN/update-gfwlist
 	$(INSTALL_BIN) ./files/watchdog $(1)/etc/V2rayVPN/watchdog
 
+	
+	$(INSTALL_DIR) $(1)/etc/init.d
+	
 
 	$(INSTALL_DIR) $(1)/usr/lib/lua/luci/controller
-	$(INSTALL_CONF) ./files/V2rayVPN.lua $(1)/usr/lib/lua/luci/controller/V2rayVPN.lua.lua
-	
+	$(INSTALL_CONF) ./files/V2rayVPN.lua $(1)/usr/lib/lua/luci/controller/V2rayVPN.lua
+		
 	$(INSTALL_DIR) $(1)/usr/lib/lua/luci/model/cbi/V2rayVPN
 	$(INSTALL_CONF) ./files/V2rayVPN-config.lua $(1)/usr/lib/lua/luci/model/cbi/V2rayVPN/V2rayVPN-config.lua
 	$(INSTALL_CONF) ./files/V2rayVPN-ip.lua $(1)/usr/lib/lua/luci/model/cbi/V2rayVPN/V2rayVPN-ip.lua

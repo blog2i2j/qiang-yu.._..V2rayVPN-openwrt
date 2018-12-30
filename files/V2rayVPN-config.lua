@@ -1,6 +1,6 @@
 require("luci.sys")
 
-m = Map("V2rayVPN", translate("配置文件"), translate("V2Ray服务器配置"))
+m = Map("V2rayVPN", translate("配置文件"), translate("V2Ray服务器配置, 【通讯协议】默认为ws(websocket),【socks代理端口】开启socks代理，【http代理端口】开启http代理"))
 
 s = m:section(TypedSection, "V2rayVPN", "")
 s.addremove = false

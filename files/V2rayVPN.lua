@@ -7,11 +7,11 @@ function index()
 
 	entry({"admin", "services", "V2rayVPN"},
 		alias("admin", "services", "V2rayVPN", "config"),
-		_("配置文件"), 10)
+		_("V2rayVPN"), 10)
 
 	entry({"admin", "services", "V2rayVPN", "config"},
 		cbi("V2rayVPN/V2rayVPN-config"),
-		_("配置文件"), 10).leaf = true
+		_("V2rayVPN"), 10).leaf = true
 				
 	entry({"admin", "services", "V2rayVPN", "gfwlist"},
 		cbi("V2rayVPN/V2rayVPN-gfwlist"),

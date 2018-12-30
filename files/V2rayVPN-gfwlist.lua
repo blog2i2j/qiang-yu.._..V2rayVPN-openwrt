@@ -1,5 +1,5 @@
 local fs = require "nixio.fs"
-local conffile = "/etc/V2rayVPN/V2rayVPN_gfwlist.conf" 
+local conffile = "/etc/V2rayVPN/V2rayVPN-gfwlist.conf" 
 
 f = SimpleForm("gfwlist", translate("V2rayVPN - gfwlist"), translate("系统自带被封禁的域名列表，点击下面【提交】按钮更新gfwlist列表"))
 
