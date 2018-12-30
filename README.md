@@ -23,7 +23,7 @@ v2ray 的 openwrt 工程，简单、好用、够用
 
 ![5](https://github.com/qiang-yu/V2rayVPN-openwrt/blob/master/misc/5.jpg)
 
-- 监控日志：显示系统运行的日子，每10分钟会自动检测一次
+- 监控日志：显示系统运行的日志，每10分钟会自动检测一次
 
 ![6](https://github.com/qiang-yu/V2rayVPN-openwrt/blob/master/misc/6.jpg)
 
