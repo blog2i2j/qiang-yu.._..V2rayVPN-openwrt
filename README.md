@@ -1,4 +1,5 @@
-# V2rayVPN-openwrt
+V2rayVPN-openwrt
+---
 
 v2ray 的 openwrt 工程，简单、好用、够用 
 
@@ -25,4 +26,13 @@ v2ray 的 openwrt 工程，简单、好用、够用
 - 监控日志：显示系统运行的日子，每10分钟会自动检测一次
 
 ![6](https://github.com/qiang-yu/V2rayVPN-openwrt/blob/master/misc/6.jpg)
+
+
+联系我  
+---
+
+如果你在 L有大雕 的 Gargoyle 石像鬼固件大群 里面，联系 孤狼吠月 就可以了。
+
+
+如果你不在固件群里面，就 github 发 issue 吧。
 
