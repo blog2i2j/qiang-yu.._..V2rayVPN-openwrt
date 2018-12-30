@@ -4,7 +4,7 @@ v2rayVer=v3.36
 v2rayArch=64
 v2rayFile=https://github.com/v2ray/v2ray-core/releases/download/${v2rayVer}/v2ray-linux-${v2rayArch}.zip
 tmpFile=/tmp/v2ray.zip
-targetFile=/etc/V2rayVPN/v2ray
+targetDir=/etc/V2rayVPN/
 
 rm ${tmpFile}
 
@@ -18,7 +18,11 @@ fi
 
 unzip ${tmpFile} -d "/tmp/v2ray/"
 
-mv /tmp/v2ray/v2ray  ${targetFile}
+chmod a+x /tmp/v2ray/v2ray
+mv /tmp/v2ray/v2ray  ${targetDir}
+
+chmod a+x /tmp/v2ray/v2ctl
+mv /tmp/v2ray/v2ctl  ${targetDir}
 
 rm ${tmpFile}
 rm -rf /tmp/v2ray
