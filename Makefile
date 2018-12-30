@@ -54,6 +54,7 @@ define Package/V2rayVPN/install
 	$(INSTALL_CONF) ./files/V2rayVPN-custom.conf $(1)/etc/V2rayVPN/V2rayVPN-custom.conf	
 	$(INSTALL_CONF) ./files/ip.txt $(1)/etc/V2rayVPN/ip.txt
 
+	$(INSTALL_BIN) ./files/wget-v2ray $(1)/etc/V2rayVPN/wget-v2ray
 	$(INSTALL_BIN) ./files/update-gfwlist $(1)/etc/V2rayVPN/update-gfwlist
 	$(INSTALL_BIN) ./files/watchdog $(1)/etc/V2rayVPN/watchdog
 

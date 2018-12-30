@@ -1,0 +1,28 @@
+#!/bin/sh
+
+v2rayVer=v3.36
+v2rayArch=64
+v2rayFile=https://github.com/v2ray/v2ray-core/releases/download/${v2rayVer}/v2ray-linux-${v2rayArch}.zip
+tmpFile=/tmp/v2ray.zip
+targetFile=/etc/V2rayVPN/v2ray
+
+rm ${tmpFile}
+
+wget -4 --no-check-certificate -q -O ${tmpFile} ${v2rayFile}
+
+## wget fail
+if [ $? -ne 0 ]; then
+	echo "wget fail"
+	exit 1
+fi
+
+unzip ${tmpFile} -d "/tmp/v2ray/"
+
+mv /tmp/v2ray/v2ray  ${targetFile}
+
+rm ${tmpFile}
+rm -rf /tmp/v2ray
+
+/etc/init.d/V2rayVPN stop
+sleep 3
+/etc/init.d/V2rayVPN start
