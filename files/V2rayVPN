@@ -53,11 +53,12 @@ runV2ray(){
 	config_get port $1 port
 	config_get id $1 id
 	config_get protocol $1 protocol
+	config_get path $1 path
 	config_get socksProxy $1 socksProxy
 	config_get httpProxy $1 httpProxy
 	
 	cat $CONFIG_V2RAY_TEMPLATE | sed "s/#server#/${server}/g" | sed "s/#port#/${port}/g" |  sed "s/#id#/${id}/g" \
-	| sed "s/#protocol#/${protocol}/g" |  sed "s/#socksProxy#/${socksProxy}/g" | sed "s/#httpProxy#/${httpProxy}/g" > $CONFIG_V2RAY_CFGFILE 
+	| sed "s/#protocol#/${protocol}/g" | sed "s/#path#/${path}/g" |  sed "s/#socksProxy#/${socksProxy}/g" | sed "s/#httpProxy#/${httpProxy}/g" > $CONFIG_V2RAY_CFGFILE 
 	
 	## start transparent redirect
 	service_start $CONFIG_V2RAY_BIN -config $CONFIG_V2RAY_CFGFILE 
@@ -111,12 +112,14 @@ runV2ray(){
 
 	## start watchdog
 	/usr/bin/crontab -l | { cat; echo "*/10 * * * * /etc/V2rayVPN/watchdog >> /var/log/V2rayVPN-watchdog.log 2>&1"; echo "0 1 * * 0 echo \"\" > /var/log/V2rayVPN-watchdog.log"; } | /usr/bin/crontab -
+	/usr/bin/crontab -l | { cat; echo "*/5 * * * * /etc/V2rayVPN/gfwlist-watchdog"; } | /usr/bin/crontab -
 }
 
 stop() {
 
 	## remove watch dog job
 	/usr/bin/crontab -l | { /bin/sed '/V2rayVPN-watchdog.log/d'; } | /usr/bin/crontab -
+	/usr/bin/crontab -l | { /bin/sed '/gfwlist-watchdog/d'; } | /usr/bin/crontab -
 
 	LOGTIME=$(date "+%Y-%m-%d %H:%M:%S")
         echo '['$LOGTIME'] Stop Watchdog ' >> /var/log/V2rayVPN-watchdog.log

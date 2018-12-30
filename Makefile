@@ -56,6 +56,7 @@ define Package/V2rayVPN/install
 
 	$(INSTALL_BIN) ./files/wget-v2ray $(1)/etc/V2rayVPN/wget-v2ray
 	$(INSTALL_BIN) ./files/update-gfwlist $(1)/etc/V2rayVPN/update-gfwlist
+	$(INSTALL_BIN) ./files/gfwlist-watchdog $(1)/etc/V2rayVPN/gfwlist-watchdog
 	$(INSTALL_BIN) ./files/watchdog $(1)/etc/V2rayVPN/watchdog
 
 	

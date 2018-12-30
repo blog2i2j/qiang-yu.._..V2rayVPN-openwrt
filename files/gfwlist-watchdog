@@ -1,0 +1,24 @@
+#!/bin/sh
+
+gfwUrlFile=https://github.com/qiang-yu/publish-cdn/raw/master/gfwlist/gfwlist_localdns.conf
+targetFile=/tmp/dnsmasq.d/V2rayVPN-gfwlist-github.conf
+
+if [ -f ${targetFile} ]; then
+	echo "GFWList already there,do nothing"
+	exit 0
+fi
+
+rm ${targetFile}
+
+wget -4 --no-check-certificate -q -O ${targetFile} ${gfwUrlFile}
+
+## wget fail
+if [ $? -ne 0 ]; then
+	rm ${targetFile}
+	echo "wget fail"
+	exit 1
+fi
+
+/etc/init.d/dnsmasq stop
+sleep 1 
+/etc/init.d/dnsmasq start

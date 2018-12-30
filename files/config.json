@@ -73,10 +73,13 @@
       "kcpSettings": null,
       "wsSettings": {
         "connectionReuse": true,
-        "path": "wscdn",
+        "path": "#path#",
         "headers": null
       },
-      "httpSettings": null
+      "httpSettings": {
+        "path": "#path#",
+        "headers": null
+      }
     }
   },
   "outboundDetour": [
