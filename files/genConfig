@@ -1,13 +1,14 @@
-#!/bin/sh /etc/rc.common
+#!/bin/sh /etc/rc.common 
 
 CONFIG_DIR=/etc/V2rayVPN
 CONFIG_V2RAY_TEMPLATE=$CONFIG_DIR/config.tpl
 CONFIG_V2RAY_CFGFILE=$CONFIG_DIR/config.json
 
-
-## read config file
-config_load V2rayVPN
-config_foreach genConfig V2rayVPN
+start(){
+	## read config file
+	config_load V2rayVPN
+	config_foreach genConfig V2rayVPN
+}
 
 genConfig(){	
 	
