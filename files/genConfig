@@ -1,0 +1,32 @@
+#!/bin/sh /etc/rc.common
+
+CONFIG_DIR=/etc/V2rayVPN
+CONFIG_V2RAY_TEMPLATE=$CONFIG_DIR/config.tpl
+CONFIG_V2RAY_CFGFILE=$CONFIG_DIR/config.json
+
+
+## read config file
+config_load V2rayVPN
+config_foreach genConfig V2rayVPN
+
+genConfig(){	
+	
+	local server
+	local port
+	local id
+	local protocol
+	local socksProxy
+	local httpProxy
+	
+	config_get server $1 server
+	config_get port $1 port
+	config_get id $1 id
+	config_get protocol $1 protocol
+	config_get path $1 path
+	config_get socksProxy $1 socksProxy
+	config_get httpProxy $1 httpProxy
+	
+	cat $CONFIG_V2RAY_TEMPLATE | sed "s/#server#/${server}/g" | sed "s/#port#/${port}/g" |  sed "s/#id#/${id}/g" \
+	| sed "s/#protocol#/${protocol}/g" | sed "s/#path#/${path}/g" |  sed "s/#socksProxy#/${socksProxy}/g" | sed "s/#httpProxy#/${httpProxy}/g" > $CONFIG_V2RAY_CFGFILE 
+	
+}

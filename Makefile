@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=V2rayVPN
-PKG_VERSION:=1.0
+PKG_VERSION:=1.1
 PKG_RELEASE:=1
 
 PKG_LICENSE:=GPLv3
@@ -49,11 +49,13 @@ define Package/V2rayVPN/install
 	$(INSTALL_CONF) ./files/V2rayVPN-config $(1)/etc/config/V2rayVPN
 
 	$(INSTALL_DIR) $(1)/etc/V2rayVPN
+	$(INSTALL_CONF) ./files/config.tpl $(1)/etc/V2rayVPN/config.tpl
 	$(INSTALL_CONF) ./files/config.json $(1)/etc/V2rayVPN/config.json
 	$(INSTALL_CONF) ./files/V2rayVPN-gfwlist.conf $(1)/etc/V2rayVPN/V2rayVPN-gfwlist.conf
 	$(INSTALL_CONF) ./files/V2rayVPN-custom.conf $(1)/etc/V2rayVPN/V2rayVPN-custom.conf	
 	$(INSTALL_CONF) ./files/ip.txt $(1)/etc/V2rayVPN/ip.txt
 
+	$(INSTALL_BIN) ./files/genConfig $(1)/etc/V2rayVPN/genConfig 
 	$(INSTALL_BIN) ./files/wget-v2ray $(1)/etc/V2rayVPN/wget-v2ray
 	$(INSTALL_BIN) ./files/update-gfwlist $(1)/etc/V2rayVPN/update-gfwlist
 	$(INSTALL_BIN) ./files/gfwlist-watchdog $(1)/etc/V2rayVPN/gfwlist-watchdog
@@ -69,6 +71,7 @@ define Package/V2rayVPN/install
 	$(INSTALL_DIR) $(1)/usr/lib/lua/luci/model/cbi/V2rayVPN
 	$(INSTALL_CONF) ./files/V2rayVPN-v2ray.lua $(1)/usr/lib/lua/luci/model/cbi/V2rayVPN/V2rayVPN-v2ray.lua
 	$(INSTALL_CONF) ./files/V2rayVPN-config.lua $(1)/usr/lib/lua/luci/model/cbi/V2rayVPN/V2rayVPN-config.lua
+	$(INSTALL_CONF) ./files/V2rayVPN-conffile.lua $(1)/usr/lib/lua/luci/model/cbi/V2rayVPN/V2rayVPN-conffile.lua
 	$(INSTALL_CONF) ./files/V2rayVPN-ip.lua $(1)/usr/lib/lua/luci/model/cbi/V2rayVPN/V2rayVPN-ip.lua
 	$(INSTALL_CONF) ./files/V2rayVPN-custom.lua $(1)/usr/lib/lua/luci/model/cbi/V2rayVPN/V2rayVPN-custom.lua
 	$(INSTALL_CONF) ./files/V2rayVPN-gfwlist.lua $(1)/usr/lib/lua/luci/model/cbi/V2rayVPN/V2rayVPN-gfwlist.lua

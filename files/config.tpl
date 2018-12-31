@@ -5,7 +5,7 @@
     "loglevel": "warning"
   },
   "inbound": {
-    "port": 1080,
+    "port": #socksProxy#,
     "listen": "0.0.0.0",
     "protocol": "socks",
     "settings": {
@@ -37,7 +37,7 @@
     },	
 	{
         "protocol": "http",
-        "port": 1081,
+        "port": #httpProxy#,
         "settings": {}
     }
   ],
@@ -48,11 +48,11 @@
     "settings": {
       "vnext": [
         {
-          "address": "134.25.6.78",
-          "port": 80,
+          "address": "#server#",
+          "port": #port#,
           "users": [
             {
-              "id": "39a59e6a-91f0-4p57-9u43-b284ya9d5o59",
+              "id": "#id#",
               "alterId": 16,
               "email": "t@t.tt",
               "security": "aes-128-gcm"
@@ -73,11 +73,11 @@
       "kcpSettings": null,
       "wsSettings": {
         "connectionReuse": true,
-        "path": "wscdn",
+        "path": "#path#",
         "headers": null
       },
       "httpSettings": {
-        "path": "wscdn",
+        "path": "#path#",
         "headers": null
       }
     }

@@ -17,7 +17,7 @@ httpProxy = s:option(Value, "httpProxy", translate("http代理端口"))
 
 local apply = luci.http.formvalue("cbi.apply")
 if apply then
-    io.popen("/etc/init.d/V2rayVPN restart")
+    io.popen("/etc/V2rayVPN/genConfig; /etc/init.d/V2rayVPN restart")
 end
 
 return m
